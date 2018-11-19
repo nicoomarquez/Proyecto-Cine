@@ -8,8 +8,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import controlador.LogInControlador;
-import ventanasVenta.Swing_seleccionAsientos;
-import ventanasVenta.Swing_seleccionPelicula;
+import vista.SeleccionAsientos;
+import vista.SeleccionPelicula;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenu;
@@ -59,11 +59,11 @@ private static MenuVendedor instancia;
 		JMenu mnVenta = new JMenu("Venta");
 		menuBar.add(mnVenta);
 		
-		JMenuItem mntmVentaNueva = new JMenuItem("Venta Nueva");
+		JMenuItem mntmVentaNueva = new JMenuItem("Nueva Venta");
 		mntmVentaNueva.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Swing_seleccionPelicula.getInstancia().setVisible(true);
-				Swing_seleccionPelicula.getInstancia().setLocationRelativeTo(null);
+				SeleccionPelicula.getInstancia().setVisible(true);
+				SeleccionPelicula.getInstancia().setLocationRelativeTo(null);
 				
 			}
 		});
