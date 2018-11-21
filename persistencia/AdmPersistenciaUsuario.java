@@ -24,7 +24,7 @@ public class AdmPersistenciaUsuario extends AdministradorPersistencia {
 			c=PoolConnection.getPoolConnection().getConnection();
 			
 			PreparedStatement s=c.prepareStatement(
-					"INSERT INTO "+PoolConnection.getNameDB()+".Usuario values (?,?,?,?,?,?,?,?)");
+					"INSERT INTO "+PoolConnection.getNameDB()+".Usuario values (?,?,?,?,?,?,?,?,1)");
 			//Asignacion de valores
 			s.setString(1, u.getDni());
 			s.setString(2, u.getNombreUsuario());
@@ -32,7 +32,7 @@ public class AdmPersistenciaUsuario extends AdministradorPersistencia {
 			s.setString(4, u.getNombre());
 			s.setString(5, u.getApellido());
 			s.setString(6, u.getDom());			
-			s.setDate(7, Date.valueOf(u.getFechaNac()));	
+			s.setString(7, u.getFechaNac().toString());	
 			s.setString(8, u.getMail());
 			s.execute();
 			

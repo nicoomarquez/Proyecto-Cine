@@ -31,10 +31,10 @@ public class AdmPersistenciaRol extends AdministradorPersistencia {
 		c=PoolConnection.getPoolConnection().getConnection();
 		try{
 			Statement s=c.createStatement();
-			s.execute("Insert into "+PoolConnection.getNameDB()+".UsuarioRol values ("
-					+this.getId(rol.getDescripcion())+","+rol.getUsuario().getDni()+")");
+			s.execute("Insert into "+PoolConnection.getNameDB()+".UsuarioRol values ('"
+					+this.getId(rol.getDescripcion())+"','"+rol.getUsuario().getDni()+"')");
 		}catch(Exception e){
-			System.out.println("Error en insertar rol "+e.getMessage());
+			System.out.println("Error en insertar rol "+e.getMessage()+"\n"+e.getStackTrace());
 		}
 		finally{
 			PoolConnection.getPoolConnection().realeaseConnection(c);
