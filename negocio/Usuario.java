@@ -139,10 +139,10 @@ public class Usuario{
 				System.out.println("Ya existe el usuario "+this.nombre+" con el rol "+newRol.getDescripcion());
 				return;
 			}
-		
-		this.roles.addElement(newRol);
-			
+						
 		AdmPersistenciaRol.getInstancia().insert(newRol);
+		this.roles.addElement(newRol);
+		
 		System.out.println("Nuevo rol asignado");
 	}
 	
