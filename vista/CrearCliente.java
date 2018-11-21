@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import controlador.LogInControlador;
+import negocio.Cliente;
 import negocio.Rol;
 import negocio.Usuario;
 
@@ -48,13 +49,15 @@ public class CrearCliente extends JFrame {
 	public static CrearCliente getInstancia(){
 		if(instancia==null)
 			instancia=new CrearCliente();
+		
 		return instancia;
 	}
-
+	
 	/**
 	 * Create the frame.
 	 */
 	private CrearCliente() {
+		reiniciarComponentes();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -66,7 +69,6 @@ public class CrearCliente extends JFrame {
 		dni.setBounds(58, 11, 165, 20);
 		contentPane.add(dni);
 		dni.setColumns(10);
-		
 		JButton btnValidarDni = new JButton("Validar DNI");
 		btnValidarDni.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -80,6 +82,10 @@ public class CrearCliente extends JFrame {
 					dom.setText(u.getDom());
 					us.setText(u.getNombreUsuario());
 					pass.setText(u.getPassword());
+				}
+				else{
+					existeUsuario=false;
+					vaciarCampos();
 				}
 				//JOptionPane.showMessageDialog(null, "CLIENTE BUSCADO");
 				panel.setVisible(true);
@@ -167,40 +173,60 @@ public class CrearCliente extends JFrame {
 		btnCrear.setVisible(false);
 		btnCrear.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				boolean continua=true;
-				/**Si existe el usuario debo verificar que no tenga el rol cliente asignado*/
-				if(existeUsuario){/*PREGUNTAR TOMI*/
-					Vector<Rol>roles=u.getRoles();
-					for(int i=0;i<roles.size()&&continua;i++){
-						if(roles.get(i).getDescripcion().equals("Cliente"))
-							continua=false;											
-					}
-					if(continua){
-						LogInControlador.getInstancia().crearCuenta(
-								mail.getText(),
-								us.getText(),
-								pass.getText(),
-								nom.getText(),
-								dom.getText(),
-								dni.getText(),								
-								ape.getText(),
-								nac.getText()
-						);
-						
+				
+				if(existeUsuario){
+					/**
+					 * Si existe el usuario debo verificar que no tenga el rol cliente asignado
+					 */
+					
+					Rol c=u.getCliente();
+					if(c==null){
+						LogInControlador.getInstancia().crearCuenta(u);
 					}
 					else{
 						JOptionPane.showMessageDialog(null, "Ya existe como cliente");
 					}
-					
 				}
-				JOptionPane.showMessageDialog(null, "CLIENTE CREADO");
+				else{
+					LogInControlador.getInstancia().crearCuenta(
+							mail.getText(),
+							us.getText(),
+							pass.getText(),
+							nom.getText(),
+							dom.getText(),
+							dni.getText(),								
+							ape.getText(),
+							nac.getText()
+						);
+				}
+				
+				vaciarCampos();
+				reiniciarComponentes();
 			}
 		});
 		btnCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				dispose();
+				reiniciarComponentes();
+				dispose();				
 			}
 		});
 	}
+	private void reiniciarComponentes() {
+		// TODO Auto-generated method stub
+		if(instancia!=null){
+			dni.setText("");
+			panel.setVisible(false);
+		}
+		
+	}
 
+	private void vaciarCampos(){
+		mail.setText("");
+		us.setText("");
+		pass.setText("");
+		nom.setText("");
+		dom.setText("");							
+		ape.setText("");
+		nac.setText("");
+	}
 }
