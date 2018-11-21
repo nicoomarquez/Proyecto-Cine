@@ -116,4 +116,10 @@ public class LogInControlador {
 		this.log=null;
 		
 	}
+
+	public void crearCuenta(Usuario u) {
+		// TODO Auto-generated method stub
+		u.asignarRol(new Cliente(u));
+		
+	}
 }
