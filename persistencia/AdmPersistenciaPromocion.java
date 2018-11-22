@@ -2,6 +2,7 @@ package persistencia;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Vector;
 
 import conexionBD.PoolConnection;
@@ -28,7 +29,7 @@ public class AdmPersistenciaPromocion extends AdministradorPersistencia {
 		{
 			DosPorUno a = (DosPorUno)o;
 			Connection con = PoolConnection.getPoolConnection().getConnection();
-			PreparedStatement s = con.prepareStatement("insert into "+PoolConnection.getNameDB()+".Promociones values (?,?,?,?)");
+			PreparedStatement s = con.prepareStatement("insert into "+PoolConnection.getNameDB()+".Promocion values (?,?,?,?)");
 			s.setString(1, a.getAgenteComercial().getUsuario().getDni());
 			s.setBoolean(2, a.isEstado());
 			s.setString(3, a.getDetalle());
@@ -60,12 +61,34 @@ public class AdmPersistenciaPromocion extends AdministradorPersistencia {
 	/**Devuelve todas las promociones activas
 	 * @param void
 	 * @return Vector*/
+	
 	public Vector<Promocion> selectAll() {
-		// TODO Auto-generated method stub
-		
-		//Select where estado=1
-		
-		return null;
+		Vector<Promocion> promociones = new Vector<Promocion>();
+		Connection con = PoolConnection.getPoolConnection().getConnection();
+		try
+		{
+			PreparedStatement s = con.prepareStatement("select * from"+PoolConnection.getNameDB()+".Promocion where estado = ?");
+			s.setBoolean(1, true);
+			ResultSet rs = s.executeQuery();
+			if(rs.next()){
+				Promocion p=
+						new Promocion(
+							rs.getString("detalle"),
+							true,
+							rs.getString("idAgente"),
+							rs.getFloat("porcentaje")
+						);
+				promociones.add(p);
+			}
+		}
+		catch (Exception e)
+		{
+			System.out.println("Error: "+e.getMessage());
+		}
+		finally{
+			PoolConnection.getPoolConnection().realeaseConnection(con);
+		}
+		return promociones;
 	}
 	@Override
 	public Vector<Object> select(Object o) {
