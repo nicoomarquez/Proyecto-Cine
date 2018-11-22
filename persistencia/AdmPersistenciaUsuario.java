@@ -129,9 +129,9 @@ public class AdmPersistenciaUsuario extends AdministradorPersistencia {
 		finally{
 			PoolConnection.getPoolConnection().realeaseConnection(c);
 		}
-		return vec;
-		
-	}
+		return vec;		
+}
+	
 	public static AdmPersistenciaUsuario getInstancia() {
 		if(instancia==null){
 			instancia=new AdmPersistenciaUsuario();
