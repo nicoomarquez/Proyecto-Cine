@@ -1,6 +1,7 @@
 package view;
 
 public class Funcion_View {
+	private int cod;
 	private String dia, horario;
 	private Pelicula_View p;
 	private Sala_View s;
@@ -42,6 +43,14 @@ public class Funcion_View {
 
 	public void setS(Sala_View s) {
 		this.s = s;
+	}
+
+	public int getCod() {
+		return cod;
+	}
+
+	public void setCod(int cod) {
+		this.cod = cod;
 	}
 	
 	
