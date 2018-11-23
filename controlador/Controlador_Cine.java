@@ -6,10 +6,9 @@ import negocio.Pelicula;
 import negocio.Administrador;
 import negocio.Cine;
 import negocio.Operador;
-import persistencia.AdmPersistenciaCine;
-import persistencia.AdmPersistenciaPelicula;
-import persistencia.AdmPersistenciaSala;
+import persistencia.*;
 import view.Cine_View;
+import view.Funcion_View;
 import view.Pelicula_View;
 import view.Sala_View;
 
@@ -167,5 +166,10 @@ public class Controlador_Cine {
 
 	public Vector<Sala_View> getSalas(String nombreCine){	
 		return AdmPersistenciaSala.getInstancia().getSalas(nombreCine);
+	}
+
+	public Vector<Funcion_View> getFuncionesView(String cine, Pelicula_View pelicula) {
+		// TODO Auto-generated method stub
+		return AdmPersistenciaFuncion.getInstancia().getFunciones(cine, pelicula);
 	}
 }
