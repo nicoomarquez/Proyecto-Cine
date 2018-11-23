@@ -16,14 +16,17 @@ public abstract class Promocion {
 	protected boolean estado;
 	protected AgenteComercial agente;
 	protected float porcentaje;
+	protected String entidadBancaria;
+	protected String tipoTarjeta;
 	
-	public Promocion(String detalle, boolean estado, AgenteComercial agente, float porcentaje) {
+	public Promocion(String detalle, boolean estado, AgenteComercial agente, float porcentaje, String entidadBancaria, String tipoTarjeta) {
 		super();
-		
 		this.detalle = detalle;
 		this.estado = estado;
 		this.agente = agente;
 		this.porcentaje = porcentaje;
+		this.entidadBancaria = entidadBancaria;
+		this.tipoTarjeta = tipoTarjeta;
 	}
 
 	public String getDetalle() {
@@ -52,6 +55,22 @@ public abstract class Promocion {
 	
 	public AgenteComercial getAgenteComercial() {
 		return agente;
+	}
+
+	public String getEntidadBancaria() {
+		return entidadBancaria;
+	}
+
+	public void setEntidadBancaria(String entidadBancaria) {
+		this.entidadBancaria = entidadBancaria;
+	}
+
+	public String getTipoTarjeta() {
+		return tipoTarjeta;
+	}
+
+	public void setTipoTarjeta(String tipoTarjeta) {
+		this.tipoTarjeta = tipoTarjeta;
 	}
 
 	public abstract float aplicarPromocion(Online v);

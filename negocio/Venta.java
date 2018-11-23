@@ -40,7 +40,7 @@ public abstract class Venta {
 	
 	public abstract void venderEntradas();
 	
-	public abstract void calcularCosto();
+	public abstract float calcularCosto();
 
 	public Vector<Entrada> getEntradas() {
 		// TODO Auto-generated method stub
