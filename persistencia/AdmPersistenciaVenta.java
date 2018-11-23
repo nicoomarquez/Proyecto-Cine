@@ -1,6 +1,7 @@
 package persistencia;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Vector;
@@ -58,16 +59,30 @@ public class AdmPersistenciaVenta extends AdministradorPersistencia {
 			ResultSet rs=s.executeQuery("Select *  from Online where codigoVenta="+codigo);
 			if(rs.next()){
 				/*Es una venta Online*/
+				Cliente c=(Cliente) AdmPersistenciaUsuario.getInstancia().buscarUsuarioPorDni(rs.getString("idCliente")).getCliente();
+				TarjetaCredito t=AdmPersistenciaTarjeta.getInstancia().buscarTarjeta(rs.getString("idTarjeta"));
+				float monto=rs.getFloat("monto");
+				Vector<Entrada>entradas=AdmPersistenciaEntrada.getInstancia().getEntradas(rs.getInt("codigoVenta"));
+				v=new Online(monto,entradas,c,t);
 			}
 			else{
-				rs=s.executeQuery("Select *  from BoleteriaEfectivo where codigoVenta="+codigo);
+				rs=s.executeQuery("Select *  from Boleteria where codigoVenta="+codigo);
 				if(rs.next()){
 					/*Es una venta en Boleteria en efectivo*/
+					Vendedor vendedor=(Vendedor)AdmPersistenciaUsuario.getInstancia().buscarUsuarioPorDni(rs.getString("idVendedor")).getVendedor();
+					float monto=rs.getFloat("monto");
+					Vector<Entrada>entradas=AdmPersistenciaEntrada.getInstancia().getEntradas(rs.getInt("codigoVenta"));
+					v=new BoleteriaEfectivo(monto,entradas,vendedor);
 				}
 				else{
 					rs=s.executeQuery("Select *  from BoleteriaTarjetaCredito where codigoVenta="+codigo);
 					if(rs.next()){
 						/*Es una venta en Boleteria en tarjeta*/
+						TarjetaCredito t=AdmPersistenciaTarjeta.getInstancia().buscarTarjeta(rs.getString("idTarjeta"));
+						Vendedor vendedor=(Vendedor)AdmPersistenciaUsuario.getInstancia().buscarUsuarioPorDni(rs.getString("idVendedor")).getVendedor();						
+						float monto=rs.getFloat("monto");
+						Vector<Entrada>entradas=AdmPersistenciaEntrada.getInstancia().getEntradas(rs.getInt("codigoVenta"));
+						v=new BoleteriaTarjetaCredito(monto,entradas,vendedor,t);
 					}
 				}
 			}
@@ -78,6 +93,46 @@ public class AdmPersistenciaVenta extends AdministradorPersistencia {
 			PoolConnection.getPoolConnection().realeaseConnection(c);
 		}
 		return v;
+	}
+	
+	public void insertarOnline(Online online) {
+		// TODO Auto-generated method stub
+		c=PoolConnection.getPoolConnection().getConnection();
+		try{
+			String sql="INSERT INTO "+PoolConnection.getNameDB()+"values (?,?,?)";
+			PreparedStatement ps=c.prepareStatement(sql);
+			
+			ps.setInt(1, online.getCodigo());
+			ps.setString(2,online.getComprador().getUsuario().getDni());
+			ps.setString(3,online.getTarjeta().getNumero());
+			
+			
+			ps.execute();
+			
+		}catch(Exception e){
+			System.out.println("Falla en insertarOnline()\n"+e.getMessage()+"\n"+e.getStackTrace());
+		}
+		finally{
+			PoolConnection.getPoolConnection().realeaseConnection(c);
+		}
+	}
+	public int getCodigoMaximo() {
+		// TODO Auto-generated method stub
+		Integer nro=null;
+		c=PoolConnection.getPoolConnection().getConnection();
+		try{
+			Statement s=c.createStatement();
+			String sql="Select max(codigoVenta) as codigo from "+PoolConnection.getNameDB()+".Venta";
+			ResultSet rs=s.executeQuery(sql);
+			while(rs.next()){
+				nro=rs.getInt("codigo");
+			}
+		}catch(Exception e){
+			System.out.println("Falla en getCodigoMaximo()\n"+e.getMessage()+"\n"+e.getStackTrace());
+		}finally{
+			PoolConnection.getPoolConnection().realeaseConnection(c);
+		}
+		return nro==null?0:nro;
 	}
 	
 }

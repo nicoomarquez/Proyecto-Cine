@@ -3,11 +3,12 @@ package persistencia;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.Vector;
 
 import conexionBD.PoolConnection;
-import negocio.Sala;
 import negocio.Administrador;
+import negocio.Sala;
 import negocio.Usuario;
 import view.Sala_View;
 
@@ -111,13 +112,12 @@ public class AdmPersistenciaSala extends AdministradorPersistencia {
 			ps.setString(2, nombre);
 			ps.setBoolean(3, true);
 			ResultSet result = ps.executeQuery();
-			while (result.next()) {
-				String nombrebd = result.getString(2);
-				int capacidad = result.getInt(3);
+			while (result.next()) {				
+				int capacidad = AdmPersistenciaAsientos.getInstancia().getCantAsientos(nombre, nombreCine);
 				String dniAdm = result.getString(4);
 				Usuario u = AdmPersistenciaUsuario.getInstancia().buscarUsuarioPorDni(dniAdm);
 				Administrador ad = (Administrador)u.getAdministrador();
-				s = new Sala(capacidad, nombrebd, ad);
+				s = new Sala(nombre, capacidad, ad);
 			}
 			PoolConnection.getPoolConnection().realeaseConnection(con);
 			return s;
@@ -148,5 +148,15 @@ public class AdmPersistenciaSala extends AdministradorPersistencia {
 		}
 		
 		return res;
+	}
+
+	public Sala_View getSalaView(String nombreSala, String cine) {
+		// TODO Auto-generated method stub
+		Sala_View sv=null;
+		int cant=AdmPersistenciaAsientos.getInstancia().getCantAsientos	(nombreSala, cine);
+		if(cant!=-1)
+			sv=new Sala_View(nombreSala,cant);
+	
+		return sv;
 	}
 }

@@ -12,7 +12,9 @@ import java.util.Vector;
 
 import persistencia.AdministradorPersistencia;
 import view.Cine_View;
+import view.Funcion_View;
 import view.Pelicula_View;
+import view.Sala_View;
 import conexionBD.PoolConnection;
 import negocio.Cine;
 import negocio.Funcion;
@@ -145,8 +147,7 @@ public class AdmPersistenciaFuncion extends AdministradorPersistencia {
 
 				Pelicula p = AdmPersistenciaPelicula.getInstancia().buscarPelicula(nombrePelicula,	idiomaPelicula);
 
-				Usuario u = AdmPersistenciaUsuario.getInstancia().buscarUsuarioPorDni(dniOp);
-				Operador op =(Operador)u.getOperador();
+				Operador op =(Operador)AdmPersistenciaUsuario.getInstancia().buscarUsuarioPorDni(dniOp).getOperador();
 
 				Sala sala = AdmPersistenciaSala.getInstancia().buscarSala(nombreSala, nombreCine);
 
@@ -155,7 +156,8 @@ public class AdmPersistenciaFuncion extends AdministradorPersistencia {
 				/*
 				 * Recuperacion de las entradas vendidas
 				 * 
-				 */				 
+				 */	
+				f.setEntradas(AdmPersistenciaEntrada.getInstancia().getEntradas(f, result.getInt("idFuncion")));
 			}
 			PoolConnection.getPoolConnection().realeaseConnection(con);
 			return f;
@@ -224,7 +226,7 @@ public class AdmPersistenciaFuncion extends AdministradorPersistencia {
 /*
  * Sala sala, Pelicula pelicula, LocalTime horario, LocalDate dia,
 			Operador op, Boolean estado*/
-	public Funcion buscarFuncionPorPelicula(String pelicula, LocalTime horario, LocalDate dia, Cine c) {
+	public Funcion buscarFuncionPorPelicula(String pelicula, LocalTime horario, LocalDate dia, String c) {
 		Funcion f=null;
 		Connection con=PoolConnection.getPoolConnection().getConnection();
 		
@@ -234,14 +236,14 @@ public class AdmPersistenciaFuncion extends AdministradorPersistencia {
 					+ " nombrePelicula="+pelicula
 					+ " dia="+dia
 					+ " horario="+horario
-					+ " idCineSala= "+AdmPersistenciaCine.getInstancia().getId(c.getCuit())
+					+ " nombreCineSala= "+c
 					);
 			while(rs.next()){
 				Usuario u=AdmPersistenciaUsuario.getInstancia().buscarUsuarioPorDni(rs.getString("idOperador"));
 				Operador op =(Operador)u.getOperador();
 						
 				f=new Funcion(
-						AdmPersistenciaSala.getInstancia().buscarSala(rs.getString("nombreSala"), c.getCuit()),
+						AdmPersistenciaSala.getInstancia().buscarSala(rs.getString("nombreSala"), ""),
 						AdmPersistenciaPelicula.getInstancia().buscarPelicula(rs.getString("nombrePelicula"), rs.getString("idiomaPelicula")),
 						rs.getTime("horario").toLocalTime(),
 						rs.getDate("dia").toLocalDate(),
@@ -251,11 +253,93 @@ public class AdmPersistenciaFuncion extends AdministradorPersistencia {
 			}
 			
 		}catch(Exception e){
-			System.out.println("Error getDiasPelicula"+e.getMessage());
+			System.out.println("Error buscarFuncionPorPelicula"+e.getMessage());
 		}
 		finally{
 			PoolConnection.getPoolConnection().realeaseConnection(con);
 		}
 		return f;
 	}
+
+	public Vector<Funcion_View> getFunciones(String cine, Pelicula_View pelicula) {
+		// TODO Auto-generated method stub
+		Connection c=PoolConnection.getPoolConnection().getConnection();
+		Vector<Funcion_View>funciones=new Vector<Funcion_View>();
+		try{
+			String sql="SELECT * FROM "+PoolConnection.getNameDB()+".Funcion where nombreCineSala=? and nombrePelicula=? and idiomaPelicula=?";
+			PreparedStatement p=c.prepareStatement(sql);
+			p.setString(1, cine);
+			p.setString(2, pelicula.getNombre());
+			p.setString(3, pelicula.getIdioma());
+			
+			ResultSet rs=p.executeQuery();
+			while(rs.next()){
+				String sala=rs.getString("nombreSala");
+				int cant=AdmPersistenciaAsientos.getInstancia().getCantAsientos(sala, cine);
+				Sala_View s=new Sala_View(sala,cant);
+				Funcion_View f=new Funcion_View(pelicula,s,rs.getString("dia"),rs.getString("horario"));
+				funciones.add(f);
+			}
+		}catch(Exception e){
+			
+		}finally{
+			PoolConnection.getPoolConnection().realeaseConnection(c);
+		}
+		return funciones;
+	}
+
+	public Funcion buscarFuncion(int idFuncion) {
+		// TODO Auto-generated method stub
+		Connection c=PoolConnection.getPoolConnection().getConnection();
+		Funcion f=null;
+		String nombreSala = null,nombreCine = null;
+		LocalTime horario = null;
+		LocalDate dia = null;
+		try{
+			Statement s=c.createStatement();
+			ResultSet rs=s.executeQuery("SELECT * FROM"+PoolConnection.getNameDB()+".Funcion where idFuncion="+idFuncion);
+			while(rs.next()){
+				nombreSala=rs.getString("nombreSala");
+				nombreCine=rs.getString("nombreCineSala");
+				horario=rs.getTime("horario").toLocalTime();
+				dia=rs.getDate("dia").toLocalDate();
+			}
+			PoolConnection.getPoolConnection().realeaseConnection(c);
+			
+			f=this.buscarFuncion(nombreSala, horario, dia, nombreCine);
+			
+		}catch(Exception e){
+			System.out.println("Error en buscarFuncion(idfuncion). Detalle:\n"+e.getMessage()+"\nStackTrace:\n"+e.getStackTrace());
+		}
+		
+		return f;
+	}
+	
+	/*public Funcion_View buscarFuncionPorPelicula2(String pelicula, LocalTime horario, LocalDate dia, String c) {
+		Funcion_View f=null;
+		Connection con=PoolConnection.getPoolConnection().getConnection();
+		
+		try{
+			Statement s=con.createStatement();
+			ResultSet rs=s.executeQuery("Select * from "+PoolConnection.getNameDB()+".Funcion where"
+					+ " nombrePelicula="+pelicula
+					+ " dia="+dia
+					+ " horario="+horario
+					+ " nombreCineSala= "+c
+					);
+			while(rs.next()){
+				Pelicula_View p=AdmPersistenciaPelicula.getInstancia().buscarPelicula(pelicula, rs.getString("idioma")).getView();
+				Sala_View sv=AdmPersistenciaSala.getInstancia().getSalaView(rs.getString("nombreSala"));		
+				f=new Funcion_View(p,sv,dia.toString(),horario.toString());
+				f.setCod(rs.getInt("idFuncion"));
+			}
+			
+		}catch(Exception e){
+			System.out.println("Error buscarFuncionPorPelicula2"+e.getMessage());
+		}
+		finally{
+			PoolConnection.getPoolConnection().realeaseConnection(con);
+		}
+		return f;
+	}*/
 }
