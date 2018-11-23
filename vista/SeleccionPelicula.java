@@ -31,7 +31,9 @@ import persistencia.AdmPersistenciaPelicula;
 import persistencia.AdmPersistenciaSala;
 import persistencia.AdmPersistenciaUsuario;
 import view.Cine_View;
+import view.Funcion_View;
 import view.Pelicula_View;
+import view.Venta_View;
 
 import javax.swing.event.ListSelectionEvent;
 
@@ -45,11 +47,15 @@ public class SeleccionPelicula extends JFrame {
 	private JPanel contentPane;
 	private static SeleccionPelicula instancia;
 	private JButton btnSiguiente;
-	JList<String> listaEstablecimientos = new JList<String>();
-	JList<String> listaPeliculas = new JList<String>();
-	JList<String> listaDias = new JList<String>();
-	JList<String> listaHorarios = new JList<String>();
-	Vector<Pelicula_View>peliculas;
+	private Vector<Pelicula_View>pView;
+	private Vector<Funcion_View>fView;
+	private JComboBox<String> listaEstablecimientos;
+	private JComboBox<String> listaPeliculas;
+	private JComboBox<String> listaDias;
+	private JComboBox<String> listaHorarios;
+	private Vector<String>dias;
+	private Venta_View venta=new Venta_View();
+
 	public static SeleccionPelicula getInstancia()
 	{
 		if (instancia == null){
@@ -82,156 +88,193 @@ public class SeleccionPelicula extends JFrame {
 		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		getContentPane().setLayout(null);
 		
+		setTitle("Venta de entradas-Seleccion de pelicula");
+		setBounds(100, 100, 548, 382);
+
 		JLabel lblEstablecimiento = new JLabel("Establecimiento:");
 		lblEstablecimiento.setBounds(20, 30, 97, 14);
 		getContentPane().add(lblEstablecimiento);
 		
 		JLabel lblPelicula = new JLabel("Pelicula: ");
-		lblPelicula.setBounds(178, 30, 97, 14);
+		lblPelicula.setBounds(20, 91, 97, 14);
 		getContentPane().add(lblPelicula);
 		
 		JLabel lblDia = new JLabel("Dia: ");
-		lblDia.setBounds(338, 30, 97, 14);
+		lblDia.setBounds(104, 194, 97, 14);
 		getContentPane().add(lblDia);
 		
-		listaEstablecimientos.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent arg0) {			
-			toEmptyList(listaHorarios);
-			toEmptyList(listaDias);
-			toEmptyList(listaPeliculas);
-			
-			//Agrego peliculas
-				DefaultListModel<String> dlm2=new DefaultListModel<String>();
-				peliculas=Controlador_Cine.getInstanciaCine().getPeliculas();
-				for(Pelicula_View e:peliculas)
-					dlm2.addElement(e.getNombreIdioma());
-				
-				listaPeliculas.setModel(dlm2);
-				btnSiguiente.setEnabled(false);
-				
-			//fin de agregado de peliculas
-			}
-		});
-		
-		listaEstablecimientos.setBounds(20, 55, 140, 249);
-		getContentPane().add(listaEstablecimientos);
-		
-		//Agrego establecimientos
-			
-			DefaultListModel<String> dlm=new DefaultListModel<String>();
-			Vector<Cine_View>establecimientos=Controlador_Cine.getInstanciaCine().getCines();
-			for(Cine_View c:establecimientos)
-				dlm.addElement(c.getNombre());	
-			listaEstablecimientos.setModel(dlm);
-		//fin de agregado de establecimientos
-			
-		listaPeliculas.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				toEmptyList(listaDias);
-				toEmptyList(listaHorarios);
-				//Agrego dias
-				Integer cineSelected=listaEstablecimientos.getSelectedIndex();
-				Integer peliculaSelected=listaPeliculas.getSelectedIndex();
-				if(cineSelected>-1 && peliculaSelected>-1){
-					DefaultListModel<String> dlm3=new DefaultListModel<String>();
-					Vector<LocalDate>dias=Funcion.getDias(
-										establecimientos.get(cineSelected),
-										peliculas.get(peliculaSelected)
-										);
-					
-					for(LocalDate e1:dias)
-						dlm3.addElement(e1.toString());	
-					//fin de agregado de dias
-					listaDias.setModel(dlm3);
-				}
-				btnSiguiente.setEnabled(false);
-				
-				
-			}
-		});
-		listaPeliculas.setBounds(178, 55, 140, 249);
-		getContentPane().add(listaPeliculas);
-			
-				
-		listaDias.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e2) {
-				toEmptyList(listaHorarios);
-				//Agrego horarios
-				Integer cineSelected=listaEstablecimientos.getSelectedIndex();
-				Integer peliculaSelected=listaPeliculas.getSelectedIndex();
-				String diaSelected=listaDias.getSelectedValue();
-				if(cineSelected>-1 && peliculaSelected>-1 && diaSelected!=null && !diaSelected.isEmpty()){
-					DefaultListModel<String> dlm4=new DefaultListModel<String>();
-					Vector<LocalTime>horarios=Funcion.getHorarios(
-										establecimientos.get(cineSelected),
-										peliculas.get(peliculaSelected),
-										LocalDate.parse(diaSelected)
-										);
-					for(LocalTime e:horarios)
-						dlm4.addElement(e.toString());	
-					listaHorarios.setModel(dlm4);
-				}
-				btnSiguiente.setEnabled(false);
-			//fin de agregado de horarios
-			}
-		});
-		listaDias.setBounds(338, 55, 140, 249);
-		getContentPane().add(listaDias);
-		listaHorarios.addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				btnSiguiente.setEnabled(true);
-			}
-		});
-		
-			
-		listaHorarios.setBounds(496, 55, 140, 249);
-		getContentPane().add(listaHorarios);
-		
-		
 		JLabel lblHorario = new JLabel("Horario:");
-		lblHorario.setBounds(496, 30, 46, 14);
+		lblHorario.setBounds(349, 194, 46, 14);
 		getContentPane().add(lblHorario);
 		
-		 btnSiguiente = new JButton("Siguiente");
-		btnSiguiente.setEnabled(false);
-		btnSiguiente.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				SeleccionAsientos.getInstancia().setVisible(true);
-				SeleccionAsientos.getInstancia().setLocationRelativeTo(null);
-				SeleccionAsientos.getInstancia().setDetallesPelicula(
-						listaEstablecimientos.getSelectedValue(), 
-						listaPeliculas.getSelectedValue(), 
-						LocalDate.parse(listaDias.getSelectedValue()), 
-						LocalTime.parse(listaHorarios.getSelectedValue())
-				);
-				dispose();
-			}
-		});
-		btnSiguiente.setBounds(366, 353, 127, 38);
-		getContentPane().add(btnSiguiente);
-		
 		JButton btnCancelar = new JButton("Cancelar");
+		btnCancelar.setBounds(59, 297, 127, 38);
+		getContentPane().add(btnCancelar);
+		
+		JButton btnSiguiente = new JButton("Siguiente");
+		btnSiguiente.setEnabled(false);
+		
+		btnSiguiente.setBounds(328, 297, 127, 38);
+		getContentPane().add(btnSiguiente);
+
+		listaEstablecimientos = new JComboBox<String>();
+		listaEstablecimientos.setBounds(127, 30, 252, 20);
+		getContentPane().add(listaEstablecimientos);
+
+	    listaPeliculas = new JComboBox<String>();
+		listaPeliculas.setBounds(127, 88, 379, 20);
+		getContentPane().add(listaPeliculas);
+		
+		listaDias = new JComboBox<String>();
+		listaDias.setBounds(35, 219, 164, 20);
+		getContentPane().add(listaDias);
+		
+		listaHorarios = new JComboBox<String>();
+		listaHorarios.setBounds(312, 219, 115, 20);
+		getContentPane().add(listaHorarios);
+		
+		JButton btnBuscarFuncion = new JButton("Buscar Funcion");
+		btnBuscarFuncion.setBounds(185, 140, 143, 23);
+		getContentPane().add(btnBuscarFuncion);
+		
+		/////////////////////////////////////////////////////////////////
+		llenarListaEstablecimientos();
 		btnCancelar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
 			}
+		});	
+		
+		btnSiguiente.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				SeleccionAsientos.setVenta(venta);
+				SeleccionAsientos.getInstancia().setVisible(true);
+				SeleccionAsientos.getInstancia().setLocationRelativeTo(null);
+			}			
 		});
-		btnCancelar.setBounds(105, 353, 127, 38);
-		getContentPane().add(btnCancelar);
-		//this.setPreferredSize(new java.awt.Dimension(800, 600));
-		this.setTitle("Venta de entradas-Seleccion de pelicula");
-		//JFrame.setDefaultLookAndFeelDecorated(true);
-		//this.setMinimumSize(new java.awt.Dimension(800, 600));
-		//this.setResizable(false);
-		setBounds(100, 100, 672, 453);
+		
+		btnBuscarFuncion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dias=new Vector<String>();
+				//System.out.println("dias tiene "+dias.size()+" elementos");
+				llenarListaDias();
+			}
+		});
+		
+		listaEstablecimientos.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Soy listaEstablecimientos y me estoy ejecutando");
+				if(listaEstablecimientos.getSelectedIndex()<=0){
+					btnSiguiente.setEnabled(false);
+				}
+				else{
+					//Se deberia buscar las peliculas de ese cine, pero mostramos todos
+					llenarListaPeliculas();
+				}
+			}
+		});
+		
+		listaPeliculas.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Soy listaPeliculas y me estoy ejecutando");
+				if(listaPeliculas.getSelectedIndex()<=0){
+					btnSiguiente.setEnabled(false);
+				}
+				
+				else{
+					//recupero los datos
+					String cine=(String) listaEstablecimientos.getSelectedItem();
+					int pos=listaPeliculas.getSelectedIndex();
+					Pelicula_View pelicula=pView.get(pos-1);
+					
+					//busco funciones que tengas estos datos
+					fView=Controlador_Cine.getInstanciaCine().getFuncionesView(cine, pelicula);
+										
+				}
+			}
 
+		});
+		
+		listaDias.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Soy listaDias y me estoy ejecutando");
+				if(listaDias.getSelectedIndex()<=0){
+					listaHorarios.removeAllItems();
+					btnSiguiente.setEnabled(false);
+				}
+				else{
+					llenarListaHorarios();
+				}
+				
+			}
+			
+		});
+		
+		listaHorarios.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Soy listaHorarios y me estoy ejecutando");
+				buscarFuncion();
+				btnSiguiente.setEnabled(true);
+				
+			}
+
+			private void buscarFuncion() {
+				// TODO Auto-generated method stub
+				String dia,horario;
+				dia=(String)listaDias.getSelectedItem();
+				horario=(String)listaHorarios.getSelectedItem();
+				
+				for(Funcion_View f:fView){
+					if(f.getDia().equals(dia)&&f.getHorario().equals(horario)){
+						venta.setFuncion(f);
+						venta.setEstablecimiento((String)listaEstablecimientos.getSelectedItem());
+					}
+				}
+				
+			}
+		});
+}
+		
+	private void llenarListaEstablecimientos() {
+		Vector<Cine_View>establecimientos=Controlador_Cine.getInstanciaCine().getCines();
+		listaEstablecimientos.addItem("-");
+		for(Cine_View c:establecimientos)
+			listaEstablecimientos.addItem(c.getNombre());
 	}
 	
-	private void toEmptyList(JList t){
-		ListModel<?> l=t.getModel();
-		if(l.getSize()>0){
-			DefaultListModel<?> dlm=(DefaultListModel<?>) l;
-			dlm.removeAllElements();
+	private void llenarListaPeliculas() {
+		pView=Controlador_Cine.getInstanciaCine().getPeliculas();
+		listaPeliculas.addItem("-");
+		for(Pelicula_View p:pView)
+			listaPeliculas.addItem(p.getNombreIdioma());
+	}
+	
+	private void llenarListaDias() {
+		dias=new Vector<String>();
+		//System.out.println("dias tiene "+dias.size()+" elementos");
+		listaDias.addItem("-");
+		for(Funcion_View f:fView){
+			
+			String dia=f.getDia();
+			
+			if(!dias.contains(dia)){
+				dias.add(dia);
+				listaDias.addItem(dia);
+				System.out.println("agregando "+dia);
+			}
+			
 		}
+	}
+	
+	private void llenarListaHorarios(){
+		String diaSeleccionado=(String)listaDias.getSelectedItem();
+		listaHorarios.addItem("-");
+		for(Funcion_View f:fView)
+			if(f.getDia().equals(diaSeleccionado))
+			listaHorarios.addItem(f.getHorario());
 	}
 }

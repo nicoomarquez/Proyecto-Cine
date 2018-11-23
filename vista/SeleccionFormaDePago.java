@@ -10,6 +10,10 @@ import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
+
+import view.FormaDePago_View;
+import view.Venta_View;
+
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
@@ -29,14 +33,10 @@ public class SeleccionFormaDePago extends JFrame {
 	private JButton btnConfirmar;
 	JMonthChooser monthChooser;
 	JYearChooser yearChooser;
-	//Datos de la pelicula seleccionada
-	private static String establecimiento;
-	private static String peliculaConDetalle;//Nombre + idioma o subtitulos
-	private static LocalDate diaDeSemana;
-	private static LocalTime horario;
-	private static int cantidadEntradas;
-	private static int [][] asientosSeleccionados;
+	private Venta_View v;
 	JPanel panel;
+	private JTextField banco;
+	private JTextField titular;
 	/**
 	 * Launch the application.
 	 */
@@ -60,14 +60,9 @@ public class SeleccionFormaDePago extends JFrame {
 	
 
 	
-	public static void setInfoAnterior(String e, String p, LocalDate d, LocalTime h, int cantEntradas, int mat[][]){
-		establecimiento=e;
-		peliculaConDetalle=p;
-		diaDeSemana=d;
-		horario=h;
-		cantidadEntradas=cantEntradas;
-		asientosSeleccionados=mat;
-		
+	public void setVenta(Venta_View v) {
+		// TODO Auto-generated method stub
+		this.v=v;
 	}
 	
 	/**
@@ -93,7 +88,7 @@ public class SeleccionFormaDePago extends JFrame {
 		contentPane.add(comboBox);
 		
 		panel = new JPanel();
-		panel.setBounds(32, 73, 307, 109);
+		panel.setBounds(10, 46, 414, 150);
 		contentPane.add(panel);
 		panel.setLayout(null);
 		panel.setVisible(false);
@@ -120,34 +115,76 @@ public class SeleccionFormaDePago extends JFrame {
 		nro.setColumns(10);
 		
 		monthChooser = new JMonthChooser();
-		monthChooser.setBounds(92, 34, 116, 20);
+		monthChooser.setBounds(92, 88, 116, 20);
 		panel.add(monthChooser);
 		
 		yearChooser = new JYearChooser();
-		yearChooser.setBounds(218, 34, 47, 20);
+		yearChooser.setBounds(218, 88, 47, 20);
 		panel.add(yearChooser);
 		
 		JLabel lblVencimiento = new JLabel("Vencimiento:");
-		lblVencimiento.setBounds(10, 40, 91, 14);
+		lblVencimiento.setBounds(10, 94, 91, 14);
 		panel.add(lblVencimiento);
 		
 		cod = new JTextField();
-		cod.setBounds(102, 67, 54, 20);
+		cod.setBounds(108, 122, 54, 20);
 		panel.add(cod);
 		cod.setColumns(10);
 		
 		JLabel lblCodSeg = new JLabel("Cod Seguridad:");
-		lblCodSeg.setBounds(10, 70, 146, 14);
+		lblCodSeg.setBounds(10, 125, 146, 14);
 		panel.add(lblCodSeg);
+		
+		JLabel lblEntidadBancaria = new JLabel("Entidad Bancaria:");
+		lblEntidadBancaria.setBounds(10, 36, 116, 14);
+		panel.add(lblEntidadBancaria);
+		
+		banco = new JTextField();
+		banco.setBounds(119, 33, 216, 20);
+		panel.add(banco);
+		banco.setColumns(10);
+		
+		JLabel lblTitular = new JLabel("Titular:");
+		lblTitular.setBounds(10, 61, 46, 14);
+		panel.add(lblTitular);
+		
+		titular = new JTextField();
+		titular.setBounds(92, 57, 173, 20);
+		panel.add(titular);
+		titular.setColumns(10);
+		
+		JComboBox<String> tipo = new JComboBox<String>();
+		tipo.setBounds(288, 122, 99, 20);
+		tipo.addItem("Visa");
+		tipo.addItem("MasterCard");
+		panel.add(tipo);
+		
+		JLabel lblTipoDeTarjeta = new JLabel("Tipo de tarjeta:");
+		lblTipoDeTarjeta.setBounds(193, 125, 99, 14);
+		panel.add(lblTipoDeTarjeta);
 		
 		 btnConfirmar = new JButton("Siguiente");
 		 btnConfirmar.setEnabled(false);
 		btnConfirmar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if(comboBox.getSelectedItem().equals("Tarjeta de credito"))
-					ConfirmarVenta.setDatosTarjeta(nro.getText(), cod.getText(),monthChooser.getMonth() ,yearChooser.getYear());
-				
-				ConfirmarVenta.setInfoAnterior(establecimiento, peliculaConDetalle, diaDeSemana, horario, cantidadEntradas, asientosSeleccionados,comboBox.getSelectedItem().toString() );
+				FormaDePago_View formaPago;
+				if(comboBox.getSelectedItem().equals("Tarjeta de credito")){
+					
+					String bancoT=banco.getText();
+					String titularT=titular.getText();
+					String nroT=nro.getText();
+					String codT=cod.getText();
+					int mesT=monthChooser.getMonth(); 
+					int anioT=yearChooser.getYear();
+					String tipoTarjeta=(String) tipo.getSelectedItem();
+					
+					formaPago=new FormaDePago_View("Tarjeta de credito",titularT,nroT,codT,bancoT,anioT,mesT,tipoTarjeta);
+					
+				}else{
+					formaPago=new FormaDePago_View("Efectivo");
+				}
+				v.setFormaPago(formaPago);
+				ConfirmarVenta.setVenta(v);
 				ConfirmarVenta.getInstancia().setLocationRelativeTo(null);
 				ConfirmarVenta.getInstancia().setVisible(true);
 				

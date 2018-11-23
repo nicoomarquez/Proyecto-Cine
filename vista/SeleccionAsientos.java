@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.Year;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.Vector;
 
@@ -20,8 +21,10 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import controlador.Controlador_Cine;
+import controlador.VentaControlador;
 import negocio.*
-;public class SeleccionAsientos extends JFrame {
+;
+import view.Venta_View;public class SeleccionAsientos extends JFrame {
 
 	/**
 	 * 
@@ -40,15 +43,11 @@ import negocio.*
 	private Vector<AsientoVendido> ocupados;
 	
 	//matriz de coordenadas (fila,columna) de un asiento
-	int mat[][]=null;
+	private Vector<AsientoFisico> asientosSeleccionados=new Vector<AsientoFisico>();
 	
-	//Datos de la pelicula seleccionada
-	String establecimiento;
-	String peliculaConDetalle;//Nombre + idioma o subtitulos
-	LocalDate diaDeSemana;
-	LocalTime horario;
+	static Venta_View v;
 	
-	private int capSala=4, columna=4;
+	private int capSala, columna=5;
 	/**
 	 * Launch the application.
 	 */
@@ -71,11 +70,8 @@ import negocio.*
 		});
 	}
 	
-	public void setDetallesPelicula(String e, String p, LocalDate d, LocalTime h){
-		establecimiento=e;
-		peliculaConDetalle=p;
-		diaDeSemana=d;
-		horario=h;
+	public static void setVenta(Venta_View venta){
+		v=venta;
 	}
 	
 	/**
@@ -132,14 +128,10 @@ import negocio.*
 				
 				else{
 					//Hago el pasa mano de la informacion recopilada en esta ventana y la anterior
-					SeleccionFormaDePago.setInfoAnterior(
-						establecimiento,
-						peliculaConDetalle,
-						diaDeSemana,
-						horario,
-						cantSelect,
-						mat
-					);		
+					v.setAsientosSeleccionados(asientosSeleccionados);
+					v.setCantidadEntradas((int)comboBox.getSelectedItem());
+					v.setTotal(v.getCantidadEntradas()*Controlador_Cine.getPrecioEntradas());
+					SeleccionFormaDePago.getInstancia().setVenta(v);	
 					
 					//visualizo la ventana siguiente
 					SeleccionFormaDePago.getInstancia().setLocationRelativeTo(null);
@@ -163,26 +155,16 @@ import negocio.*
 		});
 		btnAtras.setBounds(36, 319, 102, 23);
 		contentPane.add(btnAtras);
-		String pelicula;
-		if(peliculaConDetalle.contains("Subtitulado"))
-			pelicula=peliculaConDetalle.substring(0, peliculaConDetalle.length()-12);
-		else
-			pelicula=peliculaConDetalle.substring(0, peliculaConDetalle.length()-11);
 		
-		Funcion f=Controlador_Cine.getInstanciaCine().buscarCineNombre(establecimiento).buscarFuncionPorPelicula(
-				pelicula,
-				horario, 
-				diaDeSemana);
-		
-		capSala=f.getSala().getCapacidad();
-		
-		  for(Entrada e:f.getEntradas()){
-		  		ocupados.add(e.getAsiento());
-		  }
+		capSala=v.getFuncion().getS().getCapacidad();
+	
+		/*Obtengo las entradas vendidas*/
+		ocupados=VentaControlador.getInstancia().getAsientosVendidos(v);
 		
 		/*
 		 * Agrego una cantidad maxima de entradas, este varia segun la cantidad de asientos disponibles en la sala
 		 */
+		capSala=v.getFuncion().getS().getCapacidad();
 		for(int i=1;i<=capSala;i++)
 			comboBox.addItem(i);
 		
@@ -204,8 +186,10 @@ import negocio.*
 							for(int i=0;i<matrizAsientos.size();i++){
 								Vector<JButton> linea=matrizAsientos.elementAt(i);
 								int pos=linea.indexOf(boton);
-								if(pos!=-1)									
-									mat[i][pos]=0;
+								if(pos!=-1)
+									borrarPosicion(i,pos);
+									
+								
 							}
 						}
 						else{
@@ -214,20 +198,32 @@ import negocio.*
 								Vector<JButton> linea=matrizAsientos.elementAt(i);
 								int pos=linea.indexOf(boton);
 								if(pos!=-1){
-									mat[i][pos]=1;
+									asientosSeleccionados.add(new AsientoFisico(i,pos));
 								}
 								
 							}							
 							
 						}
 					}
+
+					
 				});
 			}
 		}
 	}
+	
+	private void borrarPosicion(int x, int pos) {
+		// TODO Auto-generated method stub
+		/*for(AsientoFisico a:asientosSeleccionados)
+			if(a.sosElAsiento(i, pos))
+				asientosSeleccionados.remove(a);*/
+		for(int i=0;i<asientosSeleccionados.size();i++)
+			if(asientosSeleccionados.get(i).sosElAsiento(x,pos))
+				asientosSeleccionados.remove(i);
+		
+	}
 	private void generarMatriz(int fila, int columna) {
 		//cargo el panel
-		mat=new int[capSala/columna][columna];
 		matrizAsientos=new Vector<Vector<JButton>>();
 		int fil=0;
 		for(int i=0;i<fila;i++){
@@ -240,11 +236,9 @@ import negocio.*
 				if(isOcupado(i,j)){
 					boton.setEnabled(false);
 					boton.setBackground(Color.GRAY);
-					mat[i][j]=2;
 				}
 				else{
 					boton.setBackground(new Color(238,238,238));
-					mat[i][j]=0;
 				}
 				linea.add(boton);
 				asientos.add(boton);
@@ -267,12 +261,6 @@ import negocio.*
 	
 	private int getCantAsientos() {
 		// TODO Auto-generated method stub
-		int cant=0;
-		for(int i=0;i<capSala/columna;i++){
-			for(int j=0;j<columna;j++)
-				if(mat[i][j]==1)
-					cant++;
-		}
-		return cant;
+		return asientosSeleccionados.size();
 	}
 }
