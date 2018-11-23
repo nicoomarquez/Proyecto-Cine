@@ -3,6 +3,8 @@ package negocio;
 import java.time.LocalDate;
 import java.util.Vector;
 
+import persistencia.AdmPersistenciaVenta;
+
 
 public abstract class Venta { 
 	
@@ -11,7 +13,7 @@ public abstract class Venta {
 	protected float monto;
 	protected LocalDate fecha;
 	protected Vector<Entrada> entradas;
-	protected static long codigo=1;
+	protected static int codigo;
 	public Venta(float monto, Vector<Entrada> entradas) {
 		super();
 		this.monto = monto;
@@ -25,12 +27,14 @@ public abstract class Venta {
 		// TODO Auto-generated constructor stub
 	}
 
-	private long getProximoNumero() {
+	private int getProximoNumero() {
 		// TODO Auto-generated method stub
 		return ++codigo;
 	}
-	
-	public long getCodigo(){
+	public void setCodigo(){
+		codigo=AdmPersistenciaVenta.getInstancia().getCodigoMaximo();
+	}
+	public int getCodigo(){
 		return codigo;
 	}
 	
@@ -40,7 +44,7 @@ public abstract class Venta {
 	
 	public abstract void venderEntradas();
 	
-	public abstract float calcularCosto();
+	public abstract void calcularCosto();
 
 	public Vector<Entrada> getEntradas() {
 		// TODO Auto-generated method stub

@@ -1,26 +1,40 @@
 package negocio;
 
-public class TarjetaCredito {
-	private String tipoTarjeta, codigoSeguridad, numero, titular, vencimiento, tipoPago, entidadBancaria;
+public class TarjetaCredito  {
+	private String tipoTarjeta,codigoSeguridad,numero,titular,vencimiento,tipoPago,entidadBancaria;
 
-	public TarjetaCredito(String tipoTarjeta, String codigoSeguridad, String numero, String titular, int mes, int anio,
-			 String entidadBancaria) {
+	public TarjetaCredito(String codigoSeguridad, String numero, String titular, int mes, int anio,
+			String entidadBancaria, String tipoTarjeta) {
 		super();
-		this.tipoTarjeta = tipoTarjeta;
 		this.codigoSeguridad = codigoSeguridad;
 		this.numero = numero;
 		this.titular = titular;
-		this.vencimiento = getFormat(mes, anio);
-		this.tipoPago = "Tarjeta";
-		this.entidadBancaria = entidadBancaria;
+		this.vencimiento = getFormat(mes,anio);
+		this.tipoPago="Tarjeta";
+		this.entidadBancaria=entidadBancaria;
+		this.tipoTarjeta=tipoTarjeta;
 	}
 	
-	private String getFormat(int mes, int anio) {
-		String res = "";
-		if(mes < 10) res = "0";
-		return res = res + mes + "/" + anio;
+	public TarjetaCredito(String codigoSeguridad, String numero, String titular, String vencimiento,
+			String entidadBancaria,String tipoTarjeta) {
+		super();
+		this.codigoSeguridad = codigoSeguridad;
+		this.numero = numero;
+		this.titular = titular;
+		this.vencimiento = vencimiento;
+		this.tipoPago="Tarjeta";
+		this.entidadBancaria=entidadBancaria;
+		this.tipoTarjeta=tipoTarjeta;
 	}
-
+	
+	private String getFormat(int mes, int anio){
+		String res="";
+		if(mes<10)
+			res="0";
+		return res=res+mes+"/"+anio;
+			
+	}
+	
 	public String getTipoTarjeta() {
 		return tipoTarjeta;
 	}
@@ -78,5 +92,4 @@ public class TarjetaCredito {
 	}
 	
 	
-
 }

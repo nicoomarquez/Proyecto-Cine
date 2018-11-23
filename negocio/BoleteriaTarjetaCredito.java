@@ -5,28 +5,29 @@ import java.util.Vector;
 import persistencia.AdmPersistenciaVenta;
 
 public class BoleteriaTarjetaCredito extends Boleteria {
-private String codigo,nro,vencimiento;
+private TarjetaCredito tarjeta;
 
-	public BoleteriaTarjetaCredito(float monto, Vector<Entrada> entradas, Vendedor vendedor, String codigo,
-		String nro, String vencimiento) {
+	public BoleteriaTarjetaCredito(float monto, Vector<Entrada> entradas, Vendedor vendedor, TarjetaCredito t) {
 	super(monto, entradas, vendedor);
-	this.codigo = codigo;
-	this.nro = nro;
-	this.vencimiento = vencimiento;
-	AdmPersistenciaVenta.getInstancia().insert(this);
+	this.tarjeta=t;
+	//AdmPersistenciaVenta.getInstancia().insert(this);
 }
 
 	@Override
 	public void venderEntradas() {
 		// TODO Auto-generated method stub
-		AdmPersistenciaVenta.getInstancia().insert(this);
+		//AdmPersistenciaVenta.getInstancia().insert(this);
 	}
 
 	@Override
-	public float calcularCosto() {
-		return monto;
+	public void calcularCosto() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	public TarjetaCredito getTarjeta() {
+		// TODO Auto-generated method stub
+		return tarjeta;
 	}
 
 }

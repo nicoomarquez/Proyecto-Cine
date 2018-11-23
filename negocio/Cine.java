@@ -246,8 +246,8 @@ public class Cine {
 		for (int i = 0; i < funciones.size(); i++)
 			if (funciones.elementAt(i).sosLaFuncionConPelicula(pelicula, horario, dia))
 				return funciones.elementAt(i);
-		Funcion f = AdmPersistenciaFuncion.getInstancia().buscarFuncionPorPelicula(pelicula, horario,dia, this);
-		
+		Funcion f = AdmPersistenciaFuncion.getInstancia().buscarFuncionPorPelicula(pelicula, horario,dia, this.nombre);
+		if(f!=null) funciones.add(f);
 		return f;
 	}
 	

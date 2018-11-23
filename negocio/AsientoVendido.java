@@ -8,7 +8,12 @@ public class AsientoVendido {
 	public AsientoVendido(AsientoFisico f,boolean estado) {
 		super();
 		asientoF=f;
-		this.estado = true;
+		this.estado = estado;
+	}
+	
+	public AsientoVendido(AsientoFisico f){
+		super();
+		asientoF=f;
 	}
 
 	public boolean isEstado() {

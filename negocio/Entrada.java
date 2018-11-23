@@ -5,6 +5,7 @@ public class Entrada {
 	private Funcion funcion;
 	private AsientoVendido asiento;
 	private float precio;
+	private boolean estadoRetiro;
 	
 	public Entrada(Funcion funcion, AsientoVendido asiento, float precio) {
 		super();

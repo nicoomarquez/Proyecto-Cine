@@ -18,8 +18,7 @@ public class BoleteriaEfectivo extends Boleteria {
 	}
 
 	@Override
-	public float calcularCosto() {
-		return monto;
+	public void calcularCosto() {
 		// TODO Auto-generated method stub
 
 	}

@@ -20,16 +20,17 @@ public class Sala {
 		this.admin = admin;
 		estado=true;
 		asientosFi = new Vector<AsientoFisico>(capacidad);
+		this.insertarAsientoBD();
 		funciones = new Vector<Funcion>();
 		
 	}
 
 	// constructor para recuperar desde bd
-	public Sala(int capacidad, String nombre, Administrador admin) {
+	public Sala(String nombre, Administrador admin,Vector<AsientoFisico>asientos,Vector<Funcion>funciones) {
 		this.nombre = nombre;
 		this.admin=admin;
-		asientosFi = new Vector<AsientoFisico>(capacidad);
-		funciones = new Vector<Funcion>();
+		this.asientosFi = asientos;
+		this.funciones = funciones;
 	}
 
 	public String getNombre() {
@@ -109,4 +110,25 @@ public class Sala {
 		// TODO Auto-generated method stub
 		return asientosFi.size();
 	}
+
+	public static int getCapacidadBD(String sala) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	public void insertarAsientoBD() {
+		int i=0, fila=0, columna=0, asientosXFila=10;
+		while(i<asientosFi.size()){
+			asientosFi.add(new AsientoFisico(fila,columna));
+	//		columna++;
+			if(columna == asientosXFila-1){
+				fila++;
+				columna=0;
+			}
+			else columna++;
+			i++;
+		}
+	}
+	
+
 }

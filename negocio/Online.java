@@ -1,6 +1,10 @@
 package negocio;
 
-public class Online extends Venta {
+import java.util.Vector;
+
+import persistencia.AdmPersistenciaVenta;
+
+public class Online extends Venta implements ObservableVenta {
 	
 	private Cliente comprador;
 	private TarjetaCredito tarjeta;
@@ -11,7 +15,15 @@ public class Online extends Venta {
 		super(monto, entradas);
 		this.comprador = comprador;
 		this.tarjeta = tarjeta;
-		this.mail = new MailPendiente(comprador.getUsuario().getMail(), null);
+		this.mail = new MailPendiente(comprador.getUsuario().getMail(),null);
+		
+	}
+	
+	public Online(float monto, Vector<Entrada> entradas, TarjetaCredito tarjeta, Cliente comprador){
+		super(monto, entradas);
+		this.comprador = comprador;
+		this.tarjeta = tarjeta;
+		AdmPersistenciaVenta.getInstancia().insertarOnline(this);
 	}
 
 	public Cliente getComprador() {
@@ -50,31 +62,41 @@ public class Online extends Venta {
 
 
 
-	public static Vector<ObserverTDA> getOv() {
-		return ov;
-	}
-
-
-
-	public static void setOv(Vector<ObserverTDA> ov) {
-		Online.ov = ov;
-	}
-
-
-
 	@Override
 	public void venderEntradas() {
 		// TODO Auto-generated method stub
-
+		
+		notifyAll(mail);
 	}
 
 	@Override
-	public float calcularCosto() {
-		return monto;
-		// TODO Auto-generated method stub
-
+	public void calcularCosto() {
+		// TODO Autxo-generated method stub
+																								
 	}
-	
-	
+
+	@Override
+	public void add(ObserverTDA vr) {
+		// TODO Auto-generated method stub
+		ov.add(vr);
+	}
+
+
+
+	@Override
+	public void remove(ObserverTDA vr) {
+		// TODO Auto-generated method stub
+		ov.remove(vr);
+	}
+
+
+
+	@Override
+	public void notifyAll(MailPendiente mail) {
+		// TODO Auto-generated method stub
+		for(ObserverTDA o:ov){
+			o.enviarMail(mail);
+		}
+	}
 
 }

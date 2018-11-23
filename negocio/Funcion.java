@@ -40,6 +40,7 @@ public class Funcion {
 		this.horario = horario;
 		this.dia = dia;
 		this.estado = estado;
+		this.op=op;
 		entradas = new Vector<Entrada>();
 	}
 
@@ -136,6 +137,11 @@ public class Funcion {
 	
 	public static void  insertarFuncion(Funcion f, String cine){
 		AdmPersistenciaFuncion.getInstancia().insert1(f, cine);
+	}
+
+	public void agregarEntradas(Vector<Entrada> entradas) {
+		// TODO Auto-generated method stub
+		this.entradas.addAll(entradas);
 	}
 
 }
